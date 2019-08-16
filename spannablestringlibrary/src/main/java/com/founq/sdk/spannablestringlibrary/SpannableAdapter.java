@@ -138,6 +138,8 @@ public abstract class SpannableAdapter extends RecyclerView.Adapter<RecyclerView
             PhotoViewHolder holder = (PhotoViewHolder) viewHolder;
             Glide.with(mContext)
                     .load(contents.get(i - beforeSize))
+                    .placeholder(R.drawable.icon_placeholder_loading)
+                    .error(R.drawable.icon_placeholder_failed)
                     .into(holder.mPhotoImg);
 
             holder.mPhotoImg.setOnClickListener(new View.OnClickListener() {
