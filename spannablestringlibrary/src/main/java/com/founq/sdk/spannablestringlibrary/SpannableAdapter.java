@@ -37,6 +37,8 @@ public abstract class SpannableAdapter extends RecyclerView.Adapter<RecyclerView
 
     //用来存放拆分后的内容
     private List<String> contents = new ArrayList<>();
+    //用来存放图片链接
+    private ArrayList<String> imgs = new ArrayList<>();
     //用来存放，当前内容是否为图片链接
     private List<Boolean> isPhoto = new ArrayList<>();
 
@@ -70,6 +72,8 @@ public abstract class SpannableAdapter extends RecyclerView.Adapter<RecyclerView
                     isPhoto.add(j == 0);
                     if (j != 0) {
                         dealString += secondSplite[j];
+                    }else {
+                        imgs.add(secondSplite[j]);
                     }
                 }
             }
@@ -146,7 +150,7 @@ public abstract class SpannableAdapter extends RecyclerView.Adapter<RecyclerView
                 @Override
                 public void onClick(View v) {
                     if (Delegate.sAdapterOnClickListener != null) {
-                        Delegate.sAdapterOnClickListener.onImgClickListener(contents.get(i - beforeSize));
+                        Delegate.sAdapterOnClickListener.onImgClickListener(imgs);
                     }
                 }
             });

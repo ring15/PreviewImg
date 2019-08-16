@@ -86,6 +86,10 @@ public class PhotoView extends AppCompatImageView implements GestureDetector.OnG
         invalidate();
     }
 
+    public void setBitmap(Bitmap bitmap){
+        mBitmap = bitmap;
+    }
+
     public Bitmap clipBitmap() {
         Bitmap bitmap = Bitmap.createBitmap((int) (2 * radius), (int) (2 * radius), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);

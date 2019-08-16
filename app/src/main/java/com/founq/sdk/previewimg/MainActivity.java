@@ -4,9 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.founq.sdk.spannablestringlibrary.AdapterOnClickListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AdapterOnClickListener {
 
@@ -55,8 +59,10 @@ public class MainActivity extends AppCompatActivity implements AdapterOnClickLis
     }
 
     @Override
-    public void onImgClickListener(String imgURL) {
-
+    public void onImgClickListener(ArrayList<String> imgURLs) {
+        Intent intent = new Intent(MainActivity.this, PhotoPreviewActivity.class);
+        intent.putStringArrayListExtra("imgURLs", imgURLs);
+        startActivity(intent);
     }
 
     @Override
