@@ -149,8 +149,17 @@ public class PhotoView extends AppCompatImageView implements GestureDetector.OnG
 
     private void matrix() {
         if (mBitmap != null) {
-            mMatrix.setTranslate((mWidth - mBitmap.getWidth()) / 2, (mHeight - mBitmap.getHeight()) / 2);
-            mTestMatrix.setTranslate((mWidth - mBitmap.getWidth()) / 2, (mHeight - mBitmap.getHeight()) / 2);
+            float scaleX = (float) mWidth / (float) mBitmap.getWidth();
+            float scaleY = (float) mHeight / (float) mBitmap.getHeight();
+            float scale = scaleX - scaleY > 0 ? scaleY : scaleX;
+            float[] value = new float[9];
+            mMatrix.getValues(value);
+            value[Matrix.MSCALE_X] = scale;
+            value[Matrix.MSCALE_Y] = scale;
+            value[Matrix.MTRANS_X] = (mWidth - mBitmap.getWidth() * scale) / 2;
+            value[Matrix.MTRANS_Y] = (mHeight - mBitmap.getHeight() * scale) / 2;
+            mMatrix.setValues(value);
+            mTestMatrix.setValues(value);
             isFirstInit = false;
         } else {
             invalidate();
@@ -238,12 +247,14 @@ public class PhotoView extends AppCompatImageView implements GestureDetector.OnG
                         if (transXvalue >= mWidth - mBitmap.getWidth() * scaleXvalue - (mWidth - mBitmap.getWidth()) / 2 &&
                                 transYvalue >= mHeight - mBitmap.getHeight() * scaleYvalue - (mHeight - mBitmap.getHeight()) / 2 &&
                                 transXvalue <= (mWidth - mBitmap.getWidth()) / 2 && transYvalue <= (mHeight - mBitmap.getHeight()) / 2 &&
-                                mBitmap.getWidth() * scaleXvalue < 10 * mWidth && mBitmap.getWidth() * scaleXvalue > mWidth / 10 &&
-                                mBitmap.getHeight() * scaleYvalue < 10 * mHeight && mBitmap.getHeight() * scaleYvalue > mHeight / 10
+                                mBitmap.getWidth() * scaleXvalue < 10 * mWidth &&
+                                mBitmap.getHeight() * scaleYvalue < 10 * mHeight &&
+                                (mBitmap.getHeight() * scaleYvalue > mHeight || mBitmap.getWidth() * scaleXvalue > mWidth)
                         ) {
                             mTestMatrix.setValues(value);
-                        } else if (mBitmap.getWidth() * scaleXvalue < 10 * mWidth && mBitmap.getWidth() * scaleXvalue > mWidth / 10 &&
-                                mBitmap.getHeight() * scaleYvalue < 10 * mHeight && mBitmap.getHeight() * scaleYvalue > mHeight / 10) {
+                        } else if (mBitmap.getWidth() * scaleXvalue < 10 * mWidth &&
+                                mBitmap.getHeight() * scaleYvalue < 10 * mHeight &&
+                                (mBitmap.getHeight() * scaleYvalue > mHeight || mBitmap.getWidth() * scaleXvalue > mWidth)) {
                             testValue[Matrix.MSCALE_X] = scaleXvalue;
                             testValue[Matrix.MSCALE_Y] = scaleYvalue;
                             testValue[Matrix.MTRANS_X] = (mWidth - mBitmap.getWidth() * scaleXvalue) / 2;
@@ -454,12 +465,14 @@ public class PhotoView extends AppCompatImageView implements GestureDetector.OnG
         if (transXvalue > mWidth - mBitmap.getWidth() * scaleXvalue - (mWidth - mBitmap.getWidth()) / 2 &&
                 transYvalue > mHeight - mBitmap.getHeight() * scaleYvalue - (mHeight - mBitmap.getHeight()) / 2 &&
                 transXvalue < (mWidth - mBitmap.getWidth()) / 2 && transYvalue < (mHeight - mBitmap.getHeight()) / 2 &&
-                mBitmap.getWidth() * scaleXvalue < 10 * mWidth && mBitmap.getWidth() * scaleXvalue > mWidth / 10 &&
-                mBitmap.getHeight() * scaleYvalue < 10 * mHeight && mBitmap.getHeight() * scaleYvalue > mHeight / 10
+                mBitmap.getWidth() * scaleXvalue < 10 * mWidth &&
+                mBitmap.getHeight() * scaleYvalue < 10 * mHeight &&
+                (mBitmap.getHeight() * scaleYvalue > mHeight || mBitmap.getWidth() * scaleXvalue > mWidth)
         ) {
             mTestMatrix.setValues(value);
-        } else if (mBitmap.getWidth() * scaleXvalue < 10 * mWidth && mBitmap.getWidth() * scaleXvalue > mWidth / 10 &&
-                mBitmap.getHeight() * scaleYvalue < 10 * mHeight && mBitmap.getHeight() * scaleYvalue > mHeight / 10) {
+        } else if (mBitmap.getWidth() * scaleXvalue < 10 * mWidth &&
+                mBitmap.getHeight() * scaleYvalue < 10 * mHeight &&
+                (mBitmap.getHeight() * scaleYvalue > mHeight || mBitmap.getWidth() * scaleXvalue > mWidth)) {
             testValue[Matrix.MSCALE_X] = scaleXvalue;
             testValue[Matrix.MSCALE_Y] = scaleYvalue;
             testValue[Matrix.MTRANS_X] = (mWidth - mBitmap.getWidth() * scaleXvalue) / 2;
