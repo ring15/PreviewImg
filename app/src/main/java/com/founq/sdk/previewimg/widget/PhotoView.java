@@ -60,6 +60,15 @@ public class PhotoView extends AppCompatImageView implements GestureDetector.OnG
     //判断是否为第一次双击
     private boolean isFirst = true;
 
+    //判断是否为初始化
+    private boolean isFirstInit = true;
+
+    //动画
+    private ValueAnimator animator;
+
+
+    private changePage mChangePage;
+
     public PhotoView(Context context) {
         this(context, null);
     }
@@ -86,8 +95,13 @@ public class PhotoView extends AppCompatImageView implements GestureDetector.OnG
         invalidate();
     }
 
-    public void setBitmap(Bitmap bitmap){
+    public void setBitmap(Bitmap bitmap) {
         mBitmap = bitmap;
+        isFirstInit = true;
+    }
+
+    public void setChangePage(changePage changePage) {
+        mChangePage = changePage;
     }
 
     public Bitmap clipBitmap() {
@@ -125,8 +139,21 @@ public class PhotoView extends AppCompatImageView implements GestureDetector.OnG
         if (mPath != null && mBitmap == null) {
             createBitmap();
         }
+        if (isFirstInit) {
+            matrix();
+        }
         if (mBitmap != null) {
             canvas.drawBitmap(mBitmap, mMatrix, null);
+        }
+    }
+
+    private void matrix() {
+        if (mBitmap != null) {
+            mMatrix.setTranslate((mWidth - mBitmap.getWidth()) / 2, (mHeight - mBitmap.getHeight()) / 2);
+            mTestMatrix.setTranslate((mWidth - mBitmap.getWidth()) / 2, (mHeight - mBitmap.getHeight()) / 2);
+            isFirstInit = false;
+        } else {
+            invalidate();
         }
     }
 
@@ -145,10 +172,17 @@ public class PhotoView extends AppCompatImageView implements GestureDetector.OnG
         mTestMatrix.setTranslate((mWidth - mBitmap.getWidth()) / 2, (mHeight - mBitmap.getHeight()) / 2);
     }
 
+    private int startX;
+
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
+        if (animator != null) {
+            animator.end();
+            animator = null;
+        }
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
+                startX = (int) event.getX();
                 lastX = (int) event.getX();
                 lastY = (int) event.getY();
                 mode = 1;
@@ -163,37 +197,74 @@ public class PhotoView extends AppCompatImageView implements GestureDetector.OnG
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                float[] value = new float[9];
-                mMatrix.getValues(value);
-                final float[] testValue = new float[9];
-                mTestMatrix.getValues(testValue);
-                float scaleXvalue = value[Matrix.MSCALE_X];
-                float scaleYvalue = value[Matrix.MSCALE_Y];
-                float transX = value[Matrix.MTRANS_X];
-                float transY = value[Matrix.MTRANS_Y];
-                if (transX < mWidth / 2 - radius && transY < mHeight / 2 - radius &&
-                        transX + mBitmap.getWidth() * scaleXvalue > mWidth / 2 + radius &&
-                        transY + mBitmap.getHeight() * scaleYvalue > mHeight / 2 + radius &&
-                        mBitmap.getWidth() * scaleXvalue > 2 * radius && mBitmap.getHeight() * scaleYvalue > 2 * radius &&
-                        mBitmap.getWidth() * scaleXvalue < 10 * mBitmap.getWidth() && mBitmap.getHeight() * scaleYvalue < 10 * mBitmap.getHeight()
-                ) {
-                    mTestMatrix.setValues(value);
-                } else {
-                    ValueAnimator animator = ValueAnimator.ofObject(new MatrixEvaluator(), new MyMatrix(value), new MyMatrix(testValue));
-                    animator.setDuration(500);
-                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                            MyMatrix scale = (MyMatrix) valueAnimator.getAnimatedValue();
-                            mMatrix.setValues(scale.getValue());
-                            invalidate();
-                        }
-                    });
-                    animator.start();
-                }
-                mode = 0;
-                break;
             case MotionEvent.ACTION_POINTER_UP:
+                if (mode == 1) {
+                    int endX = (int) event.getX();
+                    if (startX - endX > getWidth() / 3) {
+                        reset();
+                        if (mChangePage != null) {
+                            mChangePage.nextPage();
+                        }
+                        return true;
+                    } else if (endX - startX > getWidth() / 3) {
+                        reset();
+                        if (mChangePage != null) {
+                            mChangePage.prePage();
+                        }
+                        return true;
+                    }
+                }
+                if (mode == 1 || mode == 2) {
+                    float[] value = new float[9];
+                    mMatrix.getValues(value);
+                    final float[] testValue = new float[9];
+                    mTestMatrix.getValues(testValue);
+                    float scaleXvalue = value[Matrix.MSCALE_X];
+                    float scaleYvalue = value[Matrix.MSCALE_Y];
+                    float transXvalue = value[Matrix.MTRANS_X];
+                    float transYvalue = value[Matrix.MTRANS_Y];
+                    if (mPath != null) {
+                        if (transXvalue < mWidth / 2 - radius && transYvalue < mHeight / 2 - radius &&
+                                transXvalue + mBitmap.getWidth() * scaleXvalue > mWidth / 2 + radius &&
+                                transYvalue + mBitmap.getHeight() * scaleYvalue > mHeight / 2 + radius &&
+                                mBitmap.getWidth() * scaleXvalue > 2 * radius && mBitmap.getHeight() * scaleYvalue > 2 * radius &&
+                                mBitmap.getWidth() * scaleXvalue < 10 * mBitmap.getWidth() && mBitmap.getHeight() * scaleYvalue < 10 * mBitmap.getHeight()
+                        ) {
+                            mTestMatrix.setValues(value);
+                        } else {
+                            reset();
+                        }
+                    } else {
+                        if (transXvalue >= mWidth - mBitmap.getWidth() * scaleXvalue - (mWidth - mBitmap.getWidth()) / 2 &&
+                                transYvalue >= mHeight - mBitmap.getHeight() * scaleYvalue - (mHeight - mBitmap.getHeight()) / 2 &&
+                                transXvalue <= (mWidth - mBitmap.getWidth()) / 2 && transYvalue <= (mHeight - mBitmap.getHeight()) / 2 &&
+                                mBitmap.getWidth() * scaleXvalue < 10 * mWidth && mBitmap.getWidth() * scaleXvalue > mWidth / 10 &&
+                                mBitmap.getHeight() * scaleYvalue < 10 * mHeight && mBitmap.getHeight() * scaleYvalue > mHeight / 10
+                        ) {
+                            mTestMatrix.setValues(value);
+                        } else if (mBitmap.getWidth() * scaleXvalue < 10 * mWidth && mBitmap.getWidth() * scaleXvalue > mWidth / 10 &&
+                                mBitmap.getHeight() * scaleYvalue < 10 * mHeight && mBitmap.getHeight() * scaleYvalue > mHeight / 10) {
+                            testValue[Matrix.MSCALE_X] = scaleXvalue;
+                            testValue[Matrix.MSCALE_Y] = scaleYvalue;
+                            testValue[Matrix.MTRANS_X] = (mWidth - mBitmap.getWidth() * scaleXvalue) / 2;
+                            testValue[Matrix.MTRANS_Y] = (mHeight - mBitmap.getHeight() * scaleYvalue) / 2;
+                            mTestMatrix.setValues(testValue);
+                            animator = ValueAnimator.ofObject(new MatrixEvaluator(), new MyMatrix(value), new MyMatrix(testValue));
+                            animator.setDuration(500);
+                            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                                @Override
+                                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                                    MyMatrix scale = (MyMatrix) valueAnimator.getAnimatedValue();
+                                    mMatrix.setValues(scale.getValue());
+                                    invalidate();
+                                }
+                            });
+                            animator.start();
+                        } else {
+                            reset();
+                        }
+                    }
+                }
                 mode = 0;
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -221,6 +292,25 @@ public class PhotoView extends AppCompatImageView implements GestureDetector.OnG
         }
         mDetector.onTouchEvent(event);
         return true;
+    }
+
+    private void reset() {
+
+        float[] value = new float[9];
+        mMatrix.getValues(value);
+        final float[] testValue = new float[9];
+        mTestMatrix.getValues(testValue);
+        animator = ValueAnimator.ofObject(new MatrixEvaluator(), new MyMatrix(value), new MyMatrix(testValue));
+        animator.setDuration(500);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                MyMatrix scale = (MyMatrix) valueAnimator.getAnimatedValue();
+                mMatrix.setValues(scale.getValue());
+                invalidate();
+            }
+        });
+        animator.start();
     }
 
     /**
@@ -336,26 +426,61 @@ public class PhotoView extends AppCompatImageView implements GestureDetector.OnG
     @Override
     public boolean onDoubleTap(MotionEvent motionEvent) {
         float scale;
+        mode = 3;
+        if (animator != null) {
+            animator.end();
+            animator = null;
+        }
         if (isFirst) {
             scale = 1.5f;
         } else {
             scale = 1 / 1.5f;
         }
-        float[] value = new float[9];
-        mMatrix.getValues(value);
-        float scaleX = value[Matrix.MSCALE_X];
-        float scaleY = value[Matrix.MSCALE_Y];
         mMatrix.postScale(scale, scale,
                 mWidth / 2,
                 mHeight / 2);
         invalidate();
-        if (mBitmap.getWidth() * scaleX * scale > 2 * radius && mBitmap.getHeight() * scaleY * scale > 2 * radius &&
-                mBitmap.getWidth() * scaleX * scale < 10 * mBitmap.getWidth() && mBitmap.getHeight() * scaleY * scale < 10 * mBitmap.getHeight()) {
-        } else {
-            //增加一个回复函数吧
-        }
         isFirst = !isFirst;
-        return true;
+
+        float[] value = new float[9];
+        mMatrix.getValues(value);
+        final float[] testValue = new float[9];
+        mTestMatrix.getValues(testValue);
+        float scaleXvalue = value[Matrix.MSCALE_X];
+        float scaleYvalue = value[Matrix.MSCALE_Y];
+        float transXvalue = value[Matrix.MTRANS_X];
+        float transYvalue = value[Matrix.MTRANS_Y];
+
+        if (transXvalue > mWidth - mBitmap.getWidth() * scaleXvalue - (mWidth - mBitmap.getWidth()) / 2 &&
+                transYvalue > mHeight - mBitmap.getHeight() * scaleYvalue - (mHeight - mBitmap.getHeight()) / 2 &&
+                transXvalue < (mWidth - mBitmap.getWidth()) / 2 && transYvalue < (mHeight - mBitmap.getHeight()) / 2 &&
+                mBitmap.getWidth() * scaleXvalue < 10 * mWidth && mBitmap.getWidth() * scaleXvalue > mWidth / 10 &&
+                mBitmap.getHeight() * scaleYvalue < 10 * mHeight && mBitmap.getHeight() * scaleYvalue > mHeight / 10
+        ) {
+            mTestMatrix.setValues(value);
+        } else if (mBitmap.getWidth() * scaleXvalue < 10 * mWidth && mBitmap.getWidth() * scaleXvalue > mWidth / 10 &&
+                mBitmap.getHeight() * scaleYvalue < 10 * mHeight && mBitmap.getHeight() * scaleYvalue > mHeight / 10) {
+            testValue[Matrix.MSCALE_X] = scaleXvalue;
+            testValue[Matrix.MSCALE_Y] = scaleYvalue;
+            testValue[Matrix.MTRANS_X] = (mWidth - mBitmap.getWidth() * scaleXvalue) / 2;
+            testValue[Matrix.MTRANS_Y] = (mHeight - mBitmap.getHeight() * scaleYvalue) / 2;
+            mTestMatrix.setValues(testValue);
+            animator = ValueAnimator.ofObject(new MatrixEvaluator(), new MyMatrix(value), new MyMatrix(testValue));
+            animator.setDuration(500);
+            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    MyMatrix scale = (MyMatrix) valueAnimator.getAnimatedValue();
+                    mMatrix.setValues(scale.getValue());
+                    invalidate();
+                }
+            });
+            animator.start();
+        } else {
+            reset();
+        }
+
+        return false;
     }
 
     /**
@@ -367,5 +492,11 @@ public class PhotoView extends AppCompatImageView implements GestureDetector.OnG
     @Override
     public boolean onDoubleTapEvent(MotionEvent motionEvent) {
         return false;
+    }
+
+    public interface changePage {
+        void nextPage();
+
+        void prePage();
     }
 }

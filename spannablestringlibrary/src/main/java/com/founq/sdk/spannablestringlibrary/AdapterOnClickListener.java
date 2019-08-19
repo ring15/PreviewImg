@@ -9,7 +9,9 @@ public interface AdapterOnClickListener {
 
     void onURLClickListener(String URL);
 
-    void onImgClickListener(ArrayList<String> imgURLs);
+    void onImgClickListener(String imgURL);
+
+    void onImgsClickListener(ArrayList<String> imgURLs, int index);
 
     void onLongClickListener(String dealedContent);
 

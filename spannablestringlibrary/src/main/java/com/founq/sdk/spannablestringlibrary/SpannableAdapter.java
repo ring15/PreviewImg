@@ -39,8 +39,11 @@ public abstract class SpannableAdapter extends RecyclerView.Adapter<RecyclerView
     private List<String> contents = new ArrayList<>();
     //用来存放图片链接
     private ArrayList<String> imgs = new ArrayList<>();
+    //用来存放图片链地址
+    private List<Integer> indexs = new ArrayList<>();
     //用来存放，当前内容是否为图片链接
     private List<Boolean> isPhoto = new ArrayList<>();
+    private int count;
 
     public SpannableAdapter(Context context) {
         mContext = context;
@@ -57,6 +60,7 @@ public abstract class SpannableAdapter extends RecyclerView.Adapter<RecyclerView
 
     private void dealString() {
         String dealString = "";
+        count = 0;
         //通过<img>标签进行拆分
         String[] firstSplite = mSpannableString.split("<img>");
         for (int i = 0; i < firstSplite.length; i++) {
@@ -65,6 +69,7 @@ public abstract class SpannableAdapter extends RecyclerView.Adapter<RecyclerView
                 contents.add(firstSplite[i]);
                 isPhoto.add(false);
                 dealString += firstSplite[i];
+                indexs.add(-1);
             } else {
                 String[] secondSplite = firstSplite[i].split("</img>");
                 for (int j = 0; j < secondSplite.length; j++) {
@@ -72,8 +77,10 @@ public abstract class SpannableAdapter extends RecyclerView.Adapter<RecyclerView
                     isPhoto.add(j == 0);
                     if (j != 0) {
                         dealString += secondSplite[j];
+                        indexs.add(-1);
                     }else {
                         imgs.add(secondSplite[j]);
+                        indexs.add(count++);
                     }
                 }
             }
@@ -150,7 +157,8 @@ public abstract class SpannableAdapter extends RecyclerView.Adapter<RecyclerView
                 @Override
                 public void onClick(View v) {
                     if (Delegate.sAdapterOnClickListener != null) {
-                        Delegate.sAdapterOnClickListener.onImgClickListener(imgs);
+                        Delegate.sAdapterOnClickListener.onImgClickListener(contents.get(i));
+                        Delegate.sAdapterOnClickListener.onImgsClickListener(imgs, indexs.get(i));
                     }
                 }
             });

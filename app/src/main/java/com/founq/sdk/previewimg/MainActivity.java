@@ -59,9 +59,15 @@ public class MainActivity extends AppCompatActivity implements AdapterOnClickLis
     }
 
     @Override
-    public void onImgClickListener(ArrayList<String> imgURLs) {
+    public void onImgClickListener(String imgURL) {
+
+    }
+
+    @Override
+    public void onImgsClickListener(ArrayList<String> imgURLs, int index) {
         Intent intent = new Intent(MainActivity.this, PhotoPreviewActivity.class);
         intent.putStringArrayListExtra("imgURLs", imgURLs);
+        intent.putExtra("index", index);
         startActivity(intent);
     }
 

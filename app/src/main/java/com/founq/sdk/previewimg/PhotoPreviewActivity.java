@@ -1,109 +1,88 @@
 package com.founq.sdk.previewimg;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestBuilder;
-import com.bumptech.glide.request.Request;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SizeReadyCallback;
-import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
-import com.founq.sdk.previewimg.widget.PhotoView;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+
+import com.founq.sdk.previewimg.widget.MyViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PhotoPreviewActivity extends AppCompatActivity {
+public class PhotoPreviewActivity extends AppCompatActivity implements PreviewFragment.OnFragmentInteractionListener {
 
     private List<String> imgURLs = new ArrayList<>();
 
-    private PhotoView mPhotoView;
+    private MyViewPager mViewPager;
 
-    private Target mTarget;
+    private int index;
+
+    private List<Fragment> mFragments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_preview);
-        mPhotoView = findViewById(R.id.my_img);
+        mViewPager = findViewById(R.id.view_pager);
         imgURLs = getIntent().getStringArrayListExtra("imgURLs");
-        if (imgURLs != null && imgURLs.size()>0){
-            final RequestBuilder load;
-            RequestOptions options = new RequestOptions()
-                    .centerCrop()
-                    .placeholder(R.drawable.icon_placeholder_loading)
-                    .error(R.mipmap.ic_launcher);
-            load = Glide.with(this).asBitmap()
-                    .load(imgURLs.get(0))
-                    .apply(options);
-            mTarget = new MyTarget();
-            load.into(mTarget);
+        index = getIntent().getIntExtra("index", 0);
+        mFragments = new ArrayList<>();
+        if (imgURLs != null && imgURLs.size() > 0) {
+            for (int i = 0; i < imgURLs.size(); i++) {
+                mFragments.add(PreviewFragment.newInstance(imgURLs.get(i)));
+            }
+        }
+        mViewPager.setOffscreenPageLimit(1);
+        mViewPager.setAdapter(new TabFragmentPagerAdapter(getSupportFragmentManager(), mFragments));
+        mViewPager.setCurrentItem(index);
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        String text = uri.toString();
+        if (text.matches(".*next.*")) {
+            int item = mViewPager.getCurrentItem();
+            if (item + 1 < mFragments.size()) {
+                mViewPager.setCurrentItem(item + 1);
+            }
+        } else {
+            int item = mViewPager.getCurrentItem();
+            if (item - 1 >= 0) {
+                mViewPager.setCurrentItem(item - 1);
+            }
         }
     }
 
-    private class MyTarget implements Target<Bitmap> {
+    private class TabFragmentPagerAdapter extends FragmentPagerAdapter {
 
-        @Override
-        public void onLoadStarted(@Nullable Drawable placeholder) {
+        private List<Fragment> mlistViews;
 
+        public TabFragmentPagerAdapter(FragmentManager fm, List<Fragment> listViews) {
+            super(fm);
+            this.mlistViews = listViews;
         }
 
         @Override
-        public void onLoadFailed(@Nullable Drawable errorDrawable) {
-
+        public Fragment getItem(int arg0) {
+            // TODO Auto-generated method stub
+            return mlistViews.get(arg0);
         }
 
         @Override
-        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-            mPhotoView.setBitmap(resource);
+        public int getCount() {
+            // TODO Auto-generated method stub
+            return mlistViews.size();
         }
 
         @Override
-        public void onLoadCleared(@Nullable Drawable placeholder) {
-
+        public int getItemPosition(@NonNull Object object) {
+            return super.getItemPosition(object);
         }
 
-        @Override
-        public void getSize(@NonNull SizeReadyCallback cb) {
-            cb.onSizeReady(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
-        }
-
-        @Override
-        public void removeCallback(@NonNull SizeReadyCallback cb) {
-
-        }
-
-        @Override
-        public void setRequest(@Nullable Request request) {
-
-        }
-
-        @Nullable
-        @Override
-        public Request getRequest() {
-            return null;
-        }
-
-        @Override
-        public void onStart() {
-
-        }
-
-        @Override
-        public void onStop() {
-
-        }
-
-        @Override
-        public void onDestroy() {
-
-        }
     }
 }

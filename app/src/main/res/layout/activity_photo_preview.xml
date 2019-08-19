@@ -5,10 +5,9 @@
     android:layout_height="match_parent"
     tools:context=".PhotoPreviewActivity">
 
-    <com.founq.sdk.previewimg.widget.PhotoView
-        android:id="@+id/my_img"
+    <com.founq.sdk.previewimg.widget.MyViewPager
+        android:id="@+id/view_pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitCenter"/>
+        android:layout_height="match_parent"/>
 
 </LinearLayout>
