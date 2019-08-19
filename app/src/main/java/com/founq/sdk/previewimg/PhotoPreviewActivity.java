@@ -37,7 +37,7 @@ public class PhotoPreviewActivity extends AppCompatActivity implements PreviewFr
                 mFragments.add(PreviewFragment.newInstance(imgURLs.get(i)));
             }
         }
-        mViewPager.setOffscreenPageLimit(1);
+        mViewPager.setOffscreenPageLimit(0);
         mViewPager.setAdapter(new TabFragmentPagerAdapter(getSupportFragmentManager(), mFragments));
         mViewPager.setCurrentItem(index);
     }
