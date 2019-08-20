@@ -1,4 +1,5 @@
 package com.founq.sdk.previewimg.widget;
+
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Canvas;
@@ -36,10 +37,10 @@ import java.util.Collections;
 import java.util.Comparator;
 
 /**
- * 不缓存的ViewPager
- * Created by Administrator on 2016年3月9日10:03:57
+ * Created by ring on 2019/8/19.
  */
-public class MyViewPager  extends ViewGroup {private static final String TAG = "LazyViewPager";
+public class MyViewPager extends ViewGroup {
+    private static final String TAG = "LazyViewPager";
     private static final boolean DEBUG = false;
 
     private static final boolean USE_CACHE = false;
@@ -160,15 +161,12 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
          * as part of a programmatically initiated smooth scroll or a user
          * initiated touch scroll.
          *
-         * @param position
-         *            Position index of the first page currently being
-         *            displayed. Page position+1 will be visible if
-         *            positionOffset is nonzero.
-         * @param positionOffset
-         *            Value from [0, 1) indicating the offset from the page at
-         *            position.
-         * @param positionOffsetPixels
-         *            Value in pixels indicating the offset from position.
+         * @param position             Position index of the first page currently being
+         *                             displayed. Page position+1 will be visible if
+         *                             positionOffset is nonzero.
+         * @param positionOffset       Value from [0, 1) indicating the offset from the page at
+         *                             position.
+         * @param positionOffsetPixels Value in pixels indicating the offset from position.
          */
         public void onPageScrolled(int position, float positionOffset,
                                    int positionOffsetPixels);
@@ -177,8 +175,7 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
          * This method will be invoked when a new page becomes selected.
          * Animation is not necessarily complete.
          *
-         * @param position
-         *            Position index of the new selected page.
+         * @param position Position index of the new selected page.
          */
         public void onPageSelected(int position);
 
@@ -187,8 +184,7 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
          * user begins dragging, when the pager is automatically settling to the
          * current page, or when it is fully stopped/idle.
          *
-         * @param state
-         *            The new scroll state.
+         * @param state The new scroll state.
          */
         public void onPageScrollStateChanged(int state);
     }
@@ -217,12 +213,12 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
         }
     }
 
-    public MyViewPager (Context context) {
+    public MyViewPager(Context context) {
         super(context);
         initViewPager();
     }
 
-    public MyViewPager (Context context, AttributeSet attrs) {
+    public MyViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
         initViewPager();
     }
@@ -302,8 +298,7 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
      * through its first layout there will be a smooth animated transition
      * between the current item and the specified item.
      *
-     * @param item
-     *            Item index to select
+     * @param item Item index to select
      */
     public void setCurrentItem(int item) {
         mPopulatePending = false;
@@ -313,11 +308,9 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
     /**
      * Set the currently selected page.
      *
-     * @param item
-     *            Item index to select
-     * @param smoothScroll
-     *            True to smoothly scroll to the new item, false to transition
-     *            immediately
+     * @param item         Item index to select
+     * @param smoothScroll True to smoothly scroll to the new item, false to transition
+     *                     immediately
      */
     public void setCurrentItem(int item, boolean smoothScroll) {
         mPopulatePending = false;
@@ -410,8 +403,7 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
      * layouts. This setting defaults to 1.
      * </p>
      *
-     * @param limit
-     *            How many pages will be kept offscreen in an idle state.
+     * @param limit How many pages will be kept offscreen in an idle state.
      */
     public void setOffscreenPageLimit(int limit) {
         if (limit < DEFAULT_OFFSCREEN_PAGES) {
@@ -428,8 +420,7 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
     /**
      * Set the margin between pages.
      *
-     * @param marginPixels
-     *            Distance between adjacent pages in pixels
+     * @param marginPixels Distance between adjacent pages in pixels
      * @see #getPageMargin()
      * @see #setPageMarginDrawable(Drawable)
      * @see #setPageMarginDrawable(int)
@@ -456,8 +447,7 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
     /**
      * Set a drawable that will be used to fill the margin between pages.
      *
-     * @param d
-     *            Drawable to display between pages
+     * @param d Drawable to display between pages
      */
     public void setPageMarginDrawable(Drawable d) {
         mMarginDrawable = d;
@@ -470,8 +460,7 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
     /**
      * Set a drawable that will be used to fill the margin between pages.
      *
-     * @param resId
-     *            Resource ID of a drawable to display between pages
+     * @param resId Resource ID of a drawable to display between pages
      */
     public void setPageMarginDrawable(int resId) {
         setPageMarginDrawable(getContext().getResources().getDrawable(resId));
@@ -508,10 +497,8 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
      * Like {@link View#scrollBy}, but scroll smoothly instead of
      * immediately.
      *
-     * @param x
-     *            the number of pixels to scroll by on the X axis
-     * @param y
-     *            the number of pixels to scroll by on the Y axis
+     * @param x the number of pixels to scroll by on the X axis
+     * @param y the number of pixels to scroll by on the Y axis
      */
     void smoothScrollTo(int x, int y) {
         smoothScrollTo(x, y, 0);
@@ -521,13 +508,10 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
      * Like {@link View#scrollBy}, but scroll smoothly instead of
      * immediately.
      *
-     * @param x
-     *            the number of pixels to scroll by on the X axis
-     * @param y
-     *            the number of pixels to scroll by on the Y axis
-     * @param velocity
-     *            the velocity associated with a fling, if applicable. (0
-     *            otherwise)
+     * @param x        the number of pixels to scroll by on the X axis
+     * @param y        the number of pixels to scroll by on the Y axis
+     * @param velocity the velocity associated with a fling, if applicable. (0
+     *                 otherwise)
      */
     void smoothScrollTo(int x, int y, int velocity) {
         if (getChildCount() == 0) {
@@ -1119,8 +1103,7 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
      * drag is already in progress, this method will return false.
      *
      * @return true if the fake drag began successfully, false if it could not
-     *         be started.
-     *
+     * be started.
      * @see #fakeDragBy(float)
      * @see #endFakeDrag()
      */
@@ -1181,8 +1164,7 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
      * Fake drag by an offset in pixels. You must have called
      * {@link #beginFakeDrag()} first.
      *
-     * @param xOffset
-     *            Offset in pixels to drag by.
+     * @param xOffset Offset in pixels to drag by.
      * @see #beginFakeDrag()
      * @see #endFakeDrag()
      */
@@ -1229,7 +1211,6 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
      * Returns true if a fake drag is in progress.
      *
      * @return true if currently in a fake drag, false otherwise.
-     *
      * @see #beginFakeDrag()
      * @see #fakeDragBy(float)
      * @see #endFakeDrag()
@@ -1282,17 +1263,12 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
     /**
      * Tests scrollability within child views of v given a delta of dx.
      *
-     * @param v
-     *            View to test for horizontal scrollability
-     * @param checkV
-     *            Whether the view v passed should itself be checked for
-     *            scrollability (true), or just its children (false).
-     * @param dx
-     *            Delta scrolled in pixels
-     * @param x
-     *            X coordinate of the active touch point
-     * @param y
-     *            Y coordinate of the active touch point
+     * @param v      View to test for horizontal scrollability
+     * @param checkV Whether the view v passed should itself be checked for
+     *               scrollability (true), or just its children (false).
+     * @param dx     Delta scrolled in pixels
+     * @param x      X coordinate of the active touch point
+     * @param y      Y coordinate of the active touch point
      * @return true if child views of v can be scrolled by delta of dx.
      */
     protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
@@ -1333,8 +1309,7 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
      * scrolling from a key event, just as if the event had been dispatched to
      * it by the view hierarchy.
      *
-     * @param event
-     *            The key event to execute.
+     * @param event The key event to execute.
      * @return Return true if the event was handled, else false.
      */
     public boolean executeKeyEvent(KeyEvent event) {
@@ -1552,6 +1527,7 @@ public class MyViewPager  extends ViewGroup {private static final String TAG = "
             dataSetChanged();
         }
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         return false;
